@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing import List, Tuple
 
@@ -8,11 +7,8 @@ from torch.utils.data import Dataset
 LABEL_MAP = {'ai':0, 'human':1}
 
 class TextFileDataset(Dataset):
-    """
-    A PyTorch Dataset that reads text data from files on-the-fly.
-    Assumes a directory structure where each class has its own subdirectory.
-    """
-    def __init__(self, data_dir: str, tokenizer, max_length: int = 512):
+    
+    def __init__(self, data_dir: str, tokenizer, max_length: int = 512) -> None:
         self.data_dir = Path(data_dir)
         self.tokenizer = tokenizer
         self.max_length = max_length
@@ -31,7 +27,7 @@ class TextFileDataset(Dataset):
     def __len__(self):
         return len(self.samples)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> dict:
 
         # Load the text data from the file
         file_path, label = self.samples[idx]
@@ -48,7 +44,6 @@ class TextFileDataset(Dataset):
             return_tensors='pt',
         )
 
-        # Squeeze to remove the batch dimension
         input_ids = encoding['input_ids'].squeeze()
         attention_mask = encoding['attention_mask'].squeeze()
 
