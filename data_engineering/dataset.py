@@ -4,20 +4,24 @@ from typing import List, Tuple
 import torch
 from torch.utils.data import Dataset
 
+from transformers import AutoTokenizer
+
+
 LABEL_MAP = {'ai':0, 'human':1}
 
 class TextFileDataset(Dataset):
     
-    def __init__(self, data_dir: str, tokenizer, max_length: int = 512) -> None:
+    def __init__(self, data_dir: str, tokenizer : AutoTokenizer, max_length: int = 512, split : str = 'train') -> None:
         self.data_dir = Path(data_dir)
         self.tokenizer = tokenizer
         self.max_length = max_length
+        self.split = split
         self.samples = self._load_samples()
 
     def _load_samples(self) -> List[Tuple[str, int]]:
         samples = []
         for label_name, label_idx in LABEL_MAP.items():
-            label_dir = self.data_dir / label_name
+            label_dir = self.data_dir / self.split / label_name
             if not label_dir.is_dir():
                 continue
             for file_path in label_dir.glob("*.txt"):
