@@ -14,4 +14,4 @@
 # Run your code
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate dl4nlp
-python preprocessing.py --model llama3 --dataset followupqg --batch_size 32 --seed 42
+python preprocessing.py --model llama3 --dataset followupqg --batch_size 16 --seed 42
