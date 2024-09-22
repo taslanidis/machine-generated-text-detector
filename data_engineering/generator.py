@@ -97,9 +97,10 @@ class DatasetGenerator:
 
                 # human
                 else:
-                    answer = item['answer']
-                    question = item['question']
-                    sample = f"Question: {question} - Answer: {answer}"
+                    sample = {
+                        "Question": item['question'],
+                        "Answer": item['answer']
+                    }
                     samples.append(sample)
 
             # save in json
