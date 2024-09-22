@@ -3,13 +3,15 @@ from typing import List, Dict
 import torch
 from huggingface_hub import login
 
-
+# make token on hugging face and insert here
+# huggingface_token = "insert_token"
+# login(token=huggingface_token)
 
 class LLama3_8B:
 
     def __init__(self):
         
-        self.model_id = "meta-llama/Meta-Llama-3-8B"
+        self.model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -20,7 +22,6 @@ class LLama3_8B:
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.padding_side = 'left'
 
-
     def inference_for_prompt(self, prompts: List[Dict[str, str]]) -> List[str]:
         input_ids = self.tokenizer.apply_chat_template(
             prompts,
@@ -29,6 +30,7 @@ class LLama3_8B:
             return_tensors="pt",
             return_dict=True
         ).to(self.model.device)
+
         prompt_length = input_ids['input_ids'].size(1)
         terminators = [
             self.tokenizer.eos_token_id,

@@ -1,8 +1,6 @@
-import json
-import os
 import argparse
 
-from data_engineering.preprocessor import DatasetGenerator
+from data_engineering.generator import DatasetGenerator
 
 
 def main():
@@ -12,7 +10,7 @@ def main():
         type=str,
         default="llama3",
         help="Model name",
-        choices=["llama3", "mistral7B"]
+        choices=["llama3", "mistral7b"]
     )
     parser.add_argument(
         "--dataset",

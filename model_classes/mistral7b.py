@@ -8,7 +8,7 @@ from huggingface_hub import login
 # login(token=huggingface_token)
 
 class Mistral7B:
-    model_id: str = "mistralai/Mistral-7B-v0.2"
+    model_id: str = "mistralai/Mistral-7B-Instruct-v0.2"
 
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
