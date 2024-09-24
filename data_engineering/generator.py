@@ -25,7 +25,10 @@ class AnswerGenerator:
             raise NotImplementedError()
         
     def create_prompt(self, question: str):
-        return [{"role": "user", "content": question}]
+        # https://arxiv.org/pdf/2312.16171v1
+        # Source on how to format the prompt for question + instruction
+        prompt: str = f"###Question###: {question} ###Instruction###: Give me a compact and short answer."
+        return [{"role": "user", "content": prompt}]
 
     def get_answer(self, questions: List[str]) -> List[str]:
         prompts = [self.create_prompt(question) for question in questions]
@@ -97,8 +100,10 @@ class DatasetGenerator:
 
                 # human
                 else:
+                    question = DatasetGenerator.pre_process_text(item['question'])
+
                     sample = {
-                        "Question": item['question'],
+                        "Question": question,
                         "Answer": item['answer']
                     }
                     samples.append(sample)
