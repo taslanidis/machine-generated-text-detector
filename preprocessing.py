@@ -10,7 +10,7 @@ def main():
         type=str,
         default="llama3",
         help="Model name",
-        choices=["llama3", "mistral7b"]
+        choices=["llama3", "mistral7b", "human"]
     )
     parser.add_argument(
         "--dataset",

@@ -6,7 +6,7 @@
 #SBATCH --gpus=1
 #SBATCH --job-name=dataset_mistral
 #SBATCH --ntasks=1
-#SBATCH --time=00:59:00
+#SBATCH --time=04:00:00
 #SBATCH --mem=32000M
 #SBATCH --output=output/dataset_mistral_%A.out
 
