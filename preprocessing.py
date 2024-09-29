@@ -8,9 +8,9 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="llama3",
+        default="openai",
         help="Model name",
-        choices=["llama3", "mistral7b", "human"]
+        choices=["llama3", "mistral7b", "gpt2" , "openai" ,"human"]
     )
     parser.add_argument(
         "--dataset",

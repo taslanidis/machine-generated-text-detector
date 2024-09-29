@@ -1,9 +1,12 @@
 import json
 import re
+import os
 
 from typing import List, Optional
 from model_classes.llama import LLama3_8B
 from model_classes.mistral7b import Mistral7B
+from model_classes.gpt2 import GPT2
+from model_classes.openai_gpt import OpenAIGPT
 
 
 class AnswerGenerator:
@@ -21,13 +24,21 @@ class AnswerGenerator:
             self.model = None
             self.name = "human"
 
+        elif model == "gpt2":
+            self.model = GPT2()
+            self.name = "gpt2"
+        
+        elif model == "openai":
+            self.model = OpenAIGPT()
+            self.name = "openai"
+
         else:
             raise NotImplementedError()
         
     def create_prompt(self, question: str):
         # https://arxiv.org/pdf/2312.16171v1
         # Source on how to format the prompt for question + instruction
-        prompt: str = f"###Question###: {question} ###Instruction###: Give me a compact and short answer."
+        prompt: str = f"###Question###: {question} ###Instruction###: Give me a compact and short answer. Do not include anything besides the answer itself."
         return [{"role": "user", "content": prompt}]
 
     def get_answer(self, questions: List[str]) -> List[str]:
@@ -97,6 +108,7 @@ class DatasetGenerator:
                         samples.extend(processed_batch)
 
                         question_batch = []
+                        print(f"Processed {i+1} samples... out of {len(raw_data)}")
 
                 # human
                 else:
@@ -108,6 +120,11 @@ class DatasetGenerator:
                     }
                     samples.append(sample)
 
+            #create the directory if not exists 
+            output_dir = f"./data/{dataset}/{model}_qa"
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+
             # save in json
-            with open(f"./data/{dataset}/{model}_qa/{split}.json", "w") as file:
+            with open(f"{output_dir}/{split}.json", "w") as file:
                 json.dump(samples, file)
