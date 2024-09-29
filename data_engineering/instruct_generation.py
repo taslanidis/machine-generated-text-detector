@@ -1,20 +1,22 @@
 import json
 import re
+import pandas as pd
 
+from datasets import load_dataset
 from typing import List, Optional
-from model_classes.llama import LLama3_8B
-from model_classes.mistral7b import Mistral7B
+from model_classes.llama import LLama3Instruct
+from model_classes.mistral7b import Mistral7BInstruct
 
 
-class AnswerGenerator:
+class PromptAnswer:
 
     def __init__(self, model: str):
         if model == "llama3":
-            self.model = LLama3_8B()
+            self.model = LLama3Instruct()
             self.name = "llama3"
         
         elif model == "mistral7b":
-            self.model = Mistral7B()
+            self.model = Mistral7BInstruct()
             self.name = "mistral7b"
 
         elif model == "human":
@@ -33,10 +35,9 @@ class AnswerGenerator:
     def get_answer(self, questions: List[str]) -> List[str]:
         prompts = [self.create_prompt(question) for question in questions]
         return self.model.inference_for_prompt(prompts)
-    
 
 
-class DatasetGenerator:
+class FollowupqgDataset:
 
     @staticmethod
     def pre_process_text(
@@ -61,7 +62,7 @@ class DatasetGenerator:
             'valid'
         ]
 
-        answer_generator = AnswerGenerator(model)
+        answer_generator = PromptAnswer(model)
 
         for split in dataset_splits:
 
@@ -80,7 +81,7 @@ class DatasetGenerator:
                 # machine generated
                 if answer_generator.name != 'human':
 
-                    question = DatasetGenerator.pre_process_text(item['question'])
+                    question = FollowupqgDataset.pre_process_text(item['question'])
                     question_batch.append(question)
 
                     # batch size inference or reached EoF
@@ -100,7 +101,7 @@ class DatasetGenerator:
 
                 # human
                 else:
-                    question = DatasetGenerator.pre_process_text(item['question'])
+                    question = FollowupqgDataset.pre_process_text(item['question'])
 
                     sample = {
                         "Question": question,
