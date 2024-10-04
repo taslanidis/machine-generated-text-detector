@@ -1,3 +1,4 @@
+import os
 import json
 import re
 import pandas as pd
@@ -6,6 +7,7 @@ from datasets import load_dataset
 from typing import List, Optional
 from model_classes.llama import Llama3
 from model_classes.mistral7b import Mistral7B
+from model_classes.openai_gpt import OpenAIGPT
 
 LOW_THRESH: int = 20
 HIGH_THRESH: int = 1000
@@ -25,7 +27,10 @@ class TextGenerator:
         elif model == "human":
             self.model = None
             self.name = "human"
-
+        
+        elif model == "openai":
+            self.model = OpenAIGPT(max_length)
+            self.name = "openai"
         else:
             raise NotImplementedError()
         
@@ -69,7 +74,14 @@ class GenerativeDataset:
                             "text": generated_text
                         }
                     )
+                print('Processed number of batches:', start_idx, 'out of', len(data_df))
+                if start_idx > 10000:
+                    break
+
+            output_dir = f"./data/{dataset}/{model}_text"
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
 
             # save in json
-            with open(f"./data/{dataset}/{model}_text/{split}.json", "w") as file:
+            with open(f"{output_dir}/{split}.json", "w") as file:
                 json.dump(samples, file)

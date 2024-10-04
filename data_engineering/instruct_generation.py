@@ -5,10 +5,8 @@ import pandas as pd
 
 from datasets import load_dataset
 from typing import List, Optional
-from model_classes.llama import LLama3_8B
-from model_classes.mistral7b import Mistral7B
 from model_classes.gpt2 import GPT2
-from model_classes.openai_gpt import OpenAIGPT
+from model_classes.openai_gpt import OpenAIGPTInstruct
 from model_classes.llama import LLama3Instruct
 from model_classes.mistral7b import Mistral7BInstruct
 
@@ -33,7 +31,7 @@ class PromptAnswer:
             self.name = "gpt2"
         
         elif model == "openai":
-            self.model = OpenAIGPT()
+            self.model = OpenAIGPTInstruct()
             self.name = "openai"
 
         else:

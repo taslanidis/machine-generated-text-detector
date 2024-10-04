@@ -16,7 +16,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="followupqg",
+        default="wikitext",
         help="Dataset name"
     )
     parser.add_argument(
