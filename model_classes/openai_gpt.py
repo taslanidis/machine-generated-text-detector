@@ -5,7 +5,7 @@ from typing import List, Dict
 import re
 
 # Set your OpenAI API key
-os.environ["OPENAI_API_KEY"] = "sk-ga3WBWvatxgRyMGvPgjWI11uI2U_K6sWWtybUL_StLT3BlbkFJvSMW78qp6lLmZI0YAmrp0qh9bwjyKISyS_l9T0kbkA"
+#os.environ["OPENAI_API_KEY"] = "your-api-key"
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
