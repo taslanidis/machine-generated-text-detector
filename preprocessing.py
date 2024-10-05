@@ -16,7 +16,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="wikitext",
+        default="squad",
         help="Dataset name"
     )
     parser.add_argument(

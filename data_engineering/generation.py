@@ -2,6 +2,7 @@ import os
 import json
 import re
 import pandas as pd
+import time
 
 from datasets import load_dataset
 from typing import List, Optional
@@ -58,6 +59,7 @@ class GenerativeDataset:
             samples = []
 
             # Step 1: Process the DataFrame in batches
+            time1 = time.time()
             for start_idx in range(0, len(data_df), batch_size):
                 batch_df = data_df['prompt'].iloc[start_idx:start_idx + batch_size]
                 answer_df = data_df['answer'].iloc[start_idx:start_idx + batch_size]
@@ -74,8 +76,10 @@ class GenerativeDataset:
                             "text": generated_text
                         }
                     )
+                time2 = time.time()
                 print('Processed number of batches:', start_idx, 'out of', len(data_df))
-                if start_idx > 10000:
+                print(f'Total time passed: {round(time2 - time1,2)} seconds')
+                if start_idx > 0:
                     break
 
             output_dir = f"./data/{dataset}/{model}_text"
