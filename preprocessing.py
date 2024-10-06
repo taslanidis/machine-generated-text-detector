@@ -11,7 +11,7 @@ def main():
         type=str,
         default="llama3",
         help="Model name",
-        choices=["llama3", "mistral7b", "human"]
+        choices=["llama3", "mistral7b", "human", "openai"]
     )
     parser.add_argument(
         "--dataset",
