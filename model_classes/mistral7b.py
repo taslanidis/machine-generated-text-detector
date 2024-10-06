@@ -1,47 +1,31 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from typing import List, Dict
 import torch
-import random
 from huggingface_hub import login
 
 # make token on hugging face and insert here
 # huggingface_token = "insert_token"
 # login(token=huggingface_token)
 
-class LLama3Instruct:
+class Mistral7BInstruct:
+    model_id: str = "mistralai/Mistral-7B-Instruct-v0.2"
 
     def __init__(self):
-        
-        self.model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
-
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.model = AutoModelForCausalLM.from_pretrained(self.model_id).to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_id,
-            torch_dtype=torch.bfloat16,
-            device_map="auto",
-        )
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.padding_side = 'left'
 
-    def inference_for_prompt(self, prompts: List[Dict[str, str]]) -> List[str]:
-        input_ids = self.tokenizer.apply_chat_template(
-            prompts,
-            padding=True,
-            add_generation_prompt=True,
-            return_tensors="pt",
-            return_dict=True
-        ).to(self.model.device)
-
-        prompt_length = input_ids['input_ids'].size(1)
-        terminators = [
-            self.tokenizer.eos_token_id,
-            self.tokenizer.convert_tokens_to_ids("<|eot_id|>")
-        ]
-
+    def inference_for_prompt(self, prompts) -> List[str]:
+        # Encode the prompts using the chat template and pad them
+        encodeds = self.tokenizer.apply_chat_template(prompts, return_tensors='pt', padding=True, return_dict=True)
+        prompt_length = encodeds['input_ids'].size(1)
+        model_inputs = encodeds.to(self.device)
         generated_dict = self.model.generate(
-            **input_ids,
-            eos_token_id=terminators,
-            pad_token_id = self.tokenizer.eos_token_id,
+            **model_inputs,
+            max_new_tokens=300,
+            pad_token_id=self.tokenizer.eos_token_id,
             output_scores=True, 
             return_dict_in_generate=True
         )
@@ -49,18 +33,19 @@ class LLama3Instruct:
         # Decode tokens starting from the index after prompt length for each prompt in the batch
         decoded_batch = [self.tokenizer.decode(generated_ids[i][prompt_length:], skip_special_tokens=True) for i in range(len(prompts))]
         return decoded_batch
+    
 
 
-class Llama3:
+
+class Mistral7B:
 
     def __init__(self, max_length: int):
-
         self.max_length = max_length
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         # Load pre-trained tokenizer and model (e.g., GPT-2)
-        self.tokenizer = AutoTokenizer.from_pretrained('meta-llama/Meta-Llama-3-8B')
+        self.tokenizer = AutoTokenizer.from_pretrained('mistralai/Mistral-7B-v0.3')
         self.model = AutoModelForCausalLM.from_pretrained(
-            'meta-llama/Meta-Llama-3-8B',
+            'mistralai/Mistral-7B-v0.3',
             torch_dtype=torch.bfloat16,
             device_map="auto"
         ).to(self.device)
