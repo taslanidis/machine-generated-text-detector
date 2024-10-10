@@ -10,7 +10,7 @@ class FrozenRoberta(nn.Module):
         super().__init__()
         self.name = name
         # self.n_classes = n_classes
-        self.encoder = AutoModel.from_pretrained(self.name, num_labels=2)
+        self.encoder = AutoModel.from_pretrained(self.name, num_labels=2) # , force_download=True
         self.classifier = nn.Linear(self.encoder.config.hidden_size, 1)
 
         pooler = list(self.encoder.pooler.parameters())

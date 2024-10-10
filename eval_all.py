@@ -80,7 +80,7 @@ def extract_datasets(data_path, checkpoint_files, tokenizer):
     return datasets
 
 
-def in_results(results_df, train_folder_name, train_llm, folder_name, llm_name, size, seed):
+def in_results(results_df, train_folder_name, train_llm, folder_name, llm_name, size, seed, paired):
     if results_df.empty:
         return False
     w1 = results_df['train_data'] == train_folder_name
@@ -89,7 +89,8 @@ def in_results(results_df, train_folder_name, train_llm, folder_name, llm_name, 
     w4 = results_df['test_llm'] == llm_name
     w5 = results_df['size'] == size
     w6 = results_df['seed'] == seed
-    w = w1 & w2 & w3 & w4 & w5 & w6
+    w7 = results_df['paired'] == paired
+    w = w1 & w2 & w3 & w4 & w5 & w6 & w7
     return w.any()
 
 
@@ -111,7 +112,8 @@ def eval_splits(model,
                 size,
                 seed,
                 datasets,
-                device):
+                device,
+                paired):
     splits = []
     for split in ['train', 'val', 'test']:
         if split != 'test' and not (train_folder == test_folder and train_llm == test_llm):
@@ -119,7 +121,7 @@ def eval_splits(model,
         dataset = datasets[test_folder][test_llm][split]
         data_loader = get_loader(dataset, batch_size)
         accuracy, auc = evaluate_model_on_dataset(model, data_loader, device)
-        print(f"Model {train_llm}_{size}_{seed} evaluated on {test_folder}_{test_llm} ({split}):")
+        print(f"Model {train_llm}_{size}_{seed}_{paired} evaluated on {test_folder}_{test_llm} ({split}):")
         print(f"  Accuracy: {accuracy:.4f}")
         print(f"  AUC: {auc:.4f}")
         splits.append({
@@ -130,6 +132,7 @@ def eval_splits(model,
             'split': split,
             'size': size,
             'seed': seed,
+            'paired': paired,
             'accuracy': accuracy,
             'auc': auc
         })
@@ -170,7 +173,7 @@ def evaluate_all(args):
     for checkpoint_file in checkpoint_files:
 
         # Extract model size and dataset name from checkpoint file name
-        train_folder_name, train_llm, size, seed = checkpoint_file.stem.split("_")
+        train_folder_name, train_llm, size, seed, paired = checkpoint_file.stem.split("_")
         if size != args.size:
             continue
         seed = int(seed.split(".")[0])
@@ -183,7 +186,8 @@ def evaluate_all(args):
                               test_folder,
                               test_llm,
                               size,
-                              seed):
+                              seed,
+                              paired):
                     print(f"Skipping {checkpoint_file.name}")
                     continue
 
@@ -200,7 +204,8 @@ def evaluate_all(args):
                                           size,
                                           seed,
                                           datasets,
-                                          device)
+                                          device,
+                                          paired)
 
                 new_results_df = pd.concat([results_df, pd.DataFrame(new_entries)])
                 results_df = new_results_df
