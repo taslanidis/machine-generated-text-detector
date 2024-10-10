@@ -15,7 +15,7 @@ from transformers import (
 )
 from tqdm import tqdm
 
-from data_engineering.dataset import TextFileDataset, JSONDataset
+from data_engineering.dataset import JSONDataset, UnpairedJSONDataset
 from model import FrozenRoberta
 
 def seed_everything(seed=0):
@@ -75,9 +75,15 @@ def train(args):
     model.to(device)
 
     # Dataset
+    train_paired: bool = not args.train_unpaired
+    paired: str = "paired" if train_paired else "unpaired"
     # dataset = TextFileDataset(args.data_path, tokenizer, split='train')
-    train_dataset = JSONDataset(args.data_path, args.ai, tokenizer, split='train')
-    val_dataset = JSONDataset(args.data_path, args.ai, tokenizer, split='val')
+    if train_paired:
+        train_dataset = JSONDataset(args.data_path, args.ai, tokenizer, split='train')
+        val_dataset = JSONDataset(args.data_path, args.ai, tokenizer, split='val')
+    else:
+        train_dataset = UnpairedJSONDataset(args.data_path, args.ai, tokenizer, split='train')
+        val_dataset = UnpairedJSONDataset(args.data_path, args.ai, tokenizer, split='val')
     if len(train_dataset) == 0:
         raise ValueError("Training dataset is empty. Please check the data directory structure and contents.")
     if len(val_dataset) == 0:
@@ -174,11 +180,11 @@ def train(args):
                 checkpoint_dir = Path("checkpoints")
                 checkpoint_dir.mkdir(parents=True, exist_ok=True)
                 dataset_name = Path(args.data_path).name
-                save_path = checkpoint_dir / f"{dataset_name}_{args.ai}_{args.size}_{args.seed}.pt"
+                save_path = checkpoint_dir / f"{dataset_name}_{args.ai}_{args.size}_{args.seed}_{paired}.pt"
                 model.save_parameters(save_path)
 
     # Save logs
-    save_path = checkpoint_dir / f"{dataset_name}_{args.ai}_{args.size}_{args.seed}_log.json"
+    save_path = checkpoint_dir / f"{dataset_name}_{args.ai}_{args.size}_{args.seed}_{paired}_log.json"
     with open(save_path, 'w') as f:
         json.dump(logs, f)
 
@@ -214,7 +220,11 @@ def main():
         help="AI used to generate data against human",
         default="mistral7b"
     )
-
+    parser.add_argument(
+        "--train_unpaired",
+        action='store_true',
+        help="Whether to train in pairs (positive-negative sample) or not."
+    )
     args = parser.parse_args()
     train(args)
 
