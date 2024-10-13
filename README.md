@@ -20,3 +20,5 @@ We took human written text, and used it as a prime (20 tokens) for an LLM to con
 2. By the process above we are building our own datasets to run finetuning on RoBERTa.
     a. Run the scripts `./scripts/run_finetuning_*` to finetune RoBERTa on all settings as we describe on our paper.
 3. Evaluate by running `./scripts/run_eval.sh`
+
+Link to our drive: https://amsuni-my.sharepoint.com/:f:/g/personal/theofanis_aslanidis_student_uva_nl/EvMkEjWdMHhJjPuzfbQhRGQBswVjd1HuC0K22FXcbfb6pA 
